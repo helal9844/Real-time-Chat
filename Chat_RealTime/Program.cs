@@ -1,35 +1,60 @@
-namespace Chat_RealTime
+
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Chat_BL;
+using Chat_DAL;
+using Chat_DAL.UnitOfWork;
+
+namespace Chat_RealTime;
+
+public class Program
 {
-    public class Program
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
+        var builder = WebApplication.CreateBuilder(args);
+        #region Services
+
+        #region DefaultService
+        // Add services to the container.
+
+        builder.Services.AddControllers();
+        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
+        #endregion
+
+        #region DataBase
+        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+        builder.Services.AddDbContext<AppDbContext>(option => option.UseSqlServer(connectionString));
+        #endregion
+
+        #region AutoMapper
+        builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+        #endregion
+
+        #region Repos
+        builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+        #endregion
+
+        #endregion
+        var app = builder.Build();
+        #region MiddleWares
+        // Configure the HTTP request pipeline.
+        if (app.Environment.IsDevelopment())
         {
-            var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
-
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-
-            var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
-            app.UseHttpsRedirection();
-
-            app.UseAuthorization();
-
-
-            app.MapControllers();
-
-            app.Run();
+            app.UseSwagger();
+            app.UseSwaggerUI();
         }
+
+        app.UseHttpsRedirection();
+
+        app.UseAuthorization();
+
+
+        app.MapControllers();
+
+        app.Run();
+        #endregion
     }
 }
