@@ -29,12 +29,23 @@ public class Program
         builder.Services.AddDbContext<AppDbContext>(option => option.UseSqlServer(connectionString));
         #endregion
 
+        #region Hubs
+        builder.Services.AddSignalR();
+        #endregion
+
         #region AutoMapper
         builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
         #endregion
 
         #region Repos
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+        #endregion
+
+        #region Cores
+        builder.Services.AddCors(p => p.AddPolicy("coresapp", builder => 
+        {
+            builder.AllowAnyMethod().AllowAnyHeader().AllowCredentials().WithOrigins("http://localhost:4200");
+        }));
         #endregion
 
         #endregion
@@ -46,9 +57,9 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
-
+        
         app.UseHttpsRedirection();
-
+        app.UseCors("coresapp");
         app.UseAuthorization();
 
 

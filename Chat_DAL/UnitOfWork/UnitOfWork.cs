@@ -12,11 +12,10 @@ namespace Chat_DAL.UnitOfWork
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
+            Users = new UserRepo(_context);
         }
 
-
-
-
+        public IUserRepo Users { set; get; }
 
         public void Dispose()
         {
@@ -26,6 +25,11 @@ namespace Chat_DAL.UnitOfWork
         public void SaveChanges()
         {
            _context.SaveChanges();
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
         }
     }
 }

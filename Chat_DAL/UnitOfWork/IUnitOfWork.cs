@@ -8,6 +8,8 @@ namespace Chat_DAL.UnitOfWork
 {
     public interface IUnitOfWork:IDisposable
     {
+        IUserRepo Users { get; }
         void SaveChanges();
+        Task SaveChangesAsync();
     }
 }
