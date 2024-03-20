@@ -16,47 +16,58 @@ namespace Chat_RealTime.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IHubContext<ChatHub, IChatHub> _hubContext;
-        public CredentialsController(IUnitOfWork unitOfWork, IMapper mapper, IHubContext<ChatHub, IChatHub> hubContext)
+        private readonly ITokenService _tokenService;
+
+        public CredentialsController(IUnitOfWork unitOfWork, IMapper mapper, IHubContext<ChatHub, IChatHub> hubContext,ITokenService tokenService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _hubContext = hubContext;
+            _tokenService = tokenService;
         }
         [HttpPost("Register")]
-        public  async Task<ActionResult<ChatUser>> Register(RegisterDTO registerDTO)
+        public  async Task<ActionResult<UserDTO>> Register(RegisterDTO registerDTO)
         {
             if (await UserExists(registerDTO.Username))
             {
                 return BadRequest("Invalid UserName !!");
             }
 
-            using var hmac = new HMACSHA512();
+            using var hmac = new HMACSHA256();
             var user = new ChatUser
             {
                 UserName = registerDTO.Username.ToLower(),
-                PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDTO.Password)),
+                PasswordHash = hmac.ComputeHash(Encoding.ASCII.GetBytes(registerDTO.Password)),
                 PasswordSalt = hmac.Key
             };
             _unitOfWork.Users.Add(user);
             await _unitOfWork.SaveChangesAsync();
-            return user;
+            return new UserDTO
+            {
+                Username = user.UserName,
+                Token = _tokenService.CreateToken(user)
+            };
         }
         [HttpPost("Login")]
-        public async Task<ActionResult<ChatUser>> Login(LoginDTO loginDTO)
+        public async Task<ActionResult<UserDTO>> Login(LoginDTO loginDTO)
         {
             var user = await _unitOfWork.Users.SingleOrDefualtAsync(u => u.UserName == loginDTO.Username.ToLower());
 
             if (user == null) return Unauthorized("Invalid UserName");
 
-            using var hmac = new HMACSHA512(user.PasswordSalt);
+            using var hmac = new HMACSHA256(user.PasswordSalt);
 
-            var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(loginDTO.Password));
+            var computedHash = hmac.ComputeHash(Encoding.ASCII.GetBytes(loginDTO.Password));
 
             for (int i = 0; i< computedHash.Length; i++)
             {
                 if (computedHash[i] != user.PasswordHash[i]) return Unauthorized("Invalid Password");
             }
-            return user;
+            return new UserDTO
+            {
+                Username = user.UserName,
+                Token = _tokenService.CreateToken(user)
+            };
 
         }
         private async Task<bool> UserExists(string userName)

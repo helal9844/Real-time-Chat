@@ -12,6 +12,7 @@ namespace Chat_BL
         [Required]
         public string Username { get; set; }
         [Required]
+        [StringLength(16,MinimumLength =4)]
         public string Password { get; set; }
     }
 }

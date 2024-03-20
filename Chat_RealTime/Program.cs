@@ -5,6 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Chat_BL;
 using Chat_DAL;
 using Chat_DAL.UnitOfWork;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Chat_BL.MiddleWare;
 
 namespace Chat_RealTime;
 
@@ -20,8 +24,8 @@ public class Program
 
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        /*builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();*/
         #endregion
 
         #region DataBase
@@ -41,6 +45,10 @@ public class Program
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
         #endregion
 
+        #region Helpers
+        builder.Services.AddScoped<ITokenService, TokenService>();
+        #endregion
+
         #region Cores
         builder.Services.AddCors(p => p.AddPolicy("coresapp", builder => 
         {
@@ -48,18 +56,34 @@ public class Program
         }));
         #endregion
 
+        #region Authentications
+
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            { 
+                var KeyFromConfig = builder.Configuration.GetValue<string>("TokenKey");
+                var KeyInBytes = Encoding.ASCII.GetBytes(KeyFromConfig);
+                var secretkey = new SymmetricSecurityKey(KeyInBytes);
+                var signingcredentials = new SigningCredentials(secretkey, SecurityAlgorithms.HmacSha256Signature);
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    IssuerSigningKey = secretkey,
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
+        #endregion
+
         #endregion
         var app = builder.Build();
         #region MiddleWares
         // Configure the HTTP request pipeline.
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
+            
+        app.UseMiddleware<ExceptionMiddleWare>();
         
-        app.UseHttpsRedirection();
+        //app.UseHttpsRedirection();
         app.UseCors("coresapp");
+        app.UseAuthentication();
         app.UseAuthorization();
 
 

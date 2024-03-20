@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Chat_DAL;
 using Chat_DAL.UnitOfWork;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -20,10 +21,12 @@ namespace Chat_RealTime.Controllers
             _hubContext = hubContext;
         }
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<ChatUser>>> GetUsers()
         {
             return await _unitOfWork.Users.GetAllAsunc();
         }
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<ChatUser>> GetUser(int id)
         {
