@@ -6,6 +6,8 @@ import { TestErrorsComponent } from './Errors/test-errors/test-errors.component'
 import { NotFoundComponent } from './Errors/not-found/not-found.component';
 import { RouterModule } from '@angular/router';
 import { ServerErrorComponent } from './Errors/server-error/server-error.component';
+import { TabsModule } from 'ngx-bootstrap/tabs';
+import { NgxGalleryModule } from '@kolkov/ngx-gallery';
 
 @NgModule({
   declarations: [TestErrorsComponent, NotFoundComponent, ServerErrorComponent],
@@ -14,7 +16,9 @@ import { ServerErrorComponent } from './Errors/server-error/server-error.compone
     RouterModule,
     BsDropdownModule.forRoot(),
     ToastrModule.forRoot({ positionClass: 'toast-top-right' }),
+    TabsModule.forRoot(),
+    NgxGalleryModule,
   ],
-  exports: [BsDropdownModule, ToastrModule],
+  exports: [BsDropdownModule, ToastrModule, TabsModule, NgxGalleryModule],
 })
 export class SharedModule {}

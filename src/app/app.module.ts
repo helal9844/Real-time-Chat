@@ -11,6 +11,7 @@ import { MainModule } from 'src/Modules/main/main.module';
 import { RouterModule } from '@angular/router';
 import { SharedModule } from 'src/Modules/shared/shared.module';
 import { ErrorInterceptor } from 'src/Modules/shared/Interceptors/error.interceptor';
+import { JwtInterceptor } from 'src/Modules/shared/Interceptors/jwt.interceptor';
 @NgModule({
   declarations: [AppComponent],
   imports: [
@@ -26,6 +27,7 @@ import { ErrorInterceptor } from 'src/Modules/shared/Interceptors/error.intercep
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
   ],
   bootstrap: [AppComponent],
 })
