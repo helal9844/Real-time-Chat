@@ -5,13 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Chat_BL
+namespace Chat_DAL
 {
-    public class LoginDTO
+    public class RegisterDTO
     {
         [Required]
         public string Username { get; set; }
         [Required]
+        [StringLength(16,MinimumLength =4)]
         public string Password { get; set; }
     }
 }

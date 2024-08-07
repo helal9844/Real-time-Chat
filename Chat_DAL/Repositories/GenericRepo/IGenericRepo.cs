@@ -10,7 +10,7 @@ namespace Chat_DAL;
 public interface IGenericRepo<T> where T : class
 {
     List<T> GetAll();
-    Task<List<T>> GetAllAsunc();
+    Task<List<T>> GetAllAsync();
     T? GetById(int id);
     Task<T?> GetByIdAsync(int id);
     void Add(T entity);
@@ -18,6 +18,8 @@ public interface IGenericRepo<T> where T : class
     void Delete(T entity);
     Task<T?> SingleOrDefualtAsync(Expression<Func<T, bool>> expression); 
     T? Find(Expression<Func<T, bool>> expression);
+    Task<T?> FindAsync(Expression<Func<T, bool>> expression);
+
     Task<bool> AnyAsync(Expression<Func<T, bool>> expression);
 
 

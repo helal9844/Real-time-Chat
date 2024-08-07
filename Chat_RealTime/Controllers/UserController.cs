@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
+using Chat_BL;
 using Chat_DAL;
-using Chat_DAL.UnitOfWork;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +9,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Chat_RealTime.Controllers
 {
-
+    [Authorize]
     public class UserController : BaseContoller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -21,16 +22,18 @@ namespace Chat_RealTime.Controllers
             _hubContext = hubContext;
         }
         [HttpGet]
-        [AllowAnonymous]
-        public async Task<ActionResult<IEnumerable<ChatUser>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<MemberDTO>>> GetUsers()
         {
-            return await _unitOfWork.Users.GetAllAsunc();
+            var users = await _unitOfWork.Users.GetUsersWithPhotoAsync();
+            var usersMap = _mapper.Map<IEnumerable<MemberDTO>>(users);
+            return Ok(usersMap);
         }
-        [Authorize]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ChatUser>> GetUser(int id)
+        [HttpGet("{userName}")]
+        public async Task<ActionResult<MemberDTO>> GetUser(string userName)
         {
-            return await _unitOfWork.Users.GetByIdAsync(id);
+            var user = await _unitOfWork.Users.GetUserWithUserNameandPhotoAsync(userName);
+            var userMap = _mapper.Map<MemberDTO>(user);
+            return userMap;
         }
     }
 }

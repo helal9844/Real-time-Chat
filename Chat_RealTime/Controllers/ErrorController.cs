@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Chat_DAL;
-using Chat_DAL.UnitOfWork;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

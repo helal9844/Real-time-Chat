@@ -50,7 +50,7 @@ public class GenericRepo<T>:IGenericRepo<T> where T : class
 		return await _context.Set<T>().AnyAsync(expression);
 	}
 
-	public async Task<List<T>> GetAllAsunc()
+	public async Task<List<T>> GetAllAsync()
 	{
         return await _context.Set<T>().ToListAsync();
     }
@@ -63,5 +63,10 @@ public class GenericRepo<T>:IGenericRepo<T> where T : class
 	public async Task<T?> SingleOrDefualtAsync(Expression<Func<T, bool>> expression)
 	{
 		return await _context.Set<T>().SingleOrDefaultAsync(expression);
+	}
+
+	public async Task<T?> FindAsync(Expression<Func<T, bool>> expression)
+	{
+		return await _context.Set<T>().SingleOrDefaultAsync(expression); ;
 	}
 }

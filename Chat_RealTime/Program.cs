@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Chat_BL;
 using Chat_DAL;
-using Chat_DAL.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -14,7 +13,7 @@ namespace Chat_RealTime;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
         #region Services
@@ -76,6 +75,19 @@ public class Program
 
         #endregion
         var app = builder.Build();
+        using var scope = app.Services.CreateScope();
+        var services = scope.ServiceProvider;
+        try
+        {
+            var context = services.GetRequiredService<AppDbContext>();
+            await context.Database.MigrateAsync();
+            await Seed.SeedUsers(context);
+        }
+        catch (Exception ex)
+        {
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            logger.LogError(ex, "An Error occurred during migration");
+        }
         #region MiddleWares
         // Configure the HTTP request pipeline.
             
@@ -89,7 +101,7 @@ public class Program
 
         app.MapControllers();
 
-        app.Run();
+        await app.RunAsync();
         #endregion
     }
 }

@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Chat_BL;
 using Chat_DAL;
-using Chat_DAL.UnitOfWork;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;

@@ -1,4 +1,4 @@
-﻿namespace Chat_BL;
+﻿namespace Chat_DAL;
 
 public class UserDTO
 {
